@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: oklch(0.129 0.042 264.695);
+  --color-foreground: oklch(0.984 0.003 247.858);
+
+  --color-card: oklch(0.129 0.042 264.695);
+  --color-card-foreground: oklch(0.984 0.003 247.858);
+
+  --color-popover: oklch(0.129 0.042 264.695);
+  --color-popover-foreground: oklch(0.984 0.003 247.858);
+
+  --color-primary: oklch(0.623 0.214 259.815);
+  --color-primary-foreground: oklch(0.129 0.042 264.695);
+
+  --color-secondary: oklch(0.269 0.048 266.299);
+  --color-secondary-foreground: oklch(0.984 0.003 247.858);
+
+  --color-muted: oklch(0.269 0.048 266.299);
+  --color-muted-foreground: oklch(0.707 0.022 261.325);
+
+  --color-accent: oklch(0.269 0.048 266.299);
+  --color-accent-foreground: oklch(0.984 0.003 247.858);
+
+  --color-destructive: oklch(0.396 0.141 25.723);
+  --color-destructive-foreground: oklch(0.984 0.003 247.858);
+
+  --color-border: oklch(0.269 0.048 266.299);
+  --color-input: oklch(0.269 0.048 266.299);
+  --color-ring: oklch(0.546 0.245 262.881);
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cyber-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.status-low { @apply bg-emerald-500/10 text-emerald-500 border-emerald-500/20; }
+.status-medium { @apply bg-yellow-500/10 text-yellow-500 border-yellow-500/20; }
+.status-high { @apply bg-orange-500/10 text-orange-500 border-orange-500/20; }
+.status-critical { @apply bg-red-500/10 text-red-500 border-red-500/20; }

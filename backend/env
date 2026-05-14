@@ -1,0 +1,5 @@
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/incident_db?schema=public"
+JWT_SECRET="super-secret-key-12345"
+JWT_REFRESH_SECRET="refresh-secret-key-67890"
+PORT=3001
+NODE_ENV=development

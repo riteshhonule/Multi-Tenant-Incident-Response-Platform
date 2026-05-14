@@ -1,0 +1,153 @@
+// this is where the prisma client gets generated
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// defining some roles for the users
+enum Role {
+  ADMIN
+  MANAGER
+  USER
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Status {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// Tenant is basically the "company" or account
+model Tenant {
+  id        Int        @id @default(autoincrement())
+  name      String
+  slug      String     @unique
+  plan      String     @default("FREE")
+  createdAt DateTime   @default(now())
+  users     User[]
+  incidents Incident[]
+  comments  Comment[]
+  logs      ActivityLog[]
+  alerts    Alert[]
+
+  @@index([id])
+}
+
+// Regular users, they belong to a tenant
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(USER)
+  tenantId     Int
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  assignedIncidents Incident[] @relation("Assignee")
+  createdIncidents  Incident[] @relation("Creator")
+  comments          Comment[]
+  logs              ActivityLog[]
+
+  @@index([tenantId])
+  @@index([email])
+}
+
+// This is the big one - Incidents
+model Incident {
+  id           Int         @id @default(autoincrement())
+  title        String
+  description  String
+  severity     Severity    @default(MEDIUM)
+  status       Status      @default(OPEN)
+  version      Int         @default(1) // version for optimistic locking so we dont override each other
+  
+  tenantId     Int
+  tenant       Tenant      @relation(fields: [tenantId], references: [id])
+  
+  assigneeId   Int?
+  assignee     User?       @relation("Assignee", fields: [assigneeId], references: [id])
+  
+  createdById  Int
+  creator      User        @relation("Creator", fields: [createdById], references: [id])
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  resolvedAt   DateTime?
+
+  comments     Comment[]
+  logs         ActivityLog[]
+  alerts       Alert[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([severity])
+  @@index([assigneeId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  body       String
+  createdAt  DateTime @default(now())
+
+  tenantId   Int
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  incidentId Int
+  incident   Incident @relation(fields: [incidentId], references: [id])
+
+  authorId   Int
+  author     User     @relation(fields: [authorId], references: [id])
+
+  @@index([tenantId])
+  @@index([incidentId])
+}
+
+// Loging everything that happens
+model ActivityLog {
+  id         Int      @id @default(autoincrement())
+  action     String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  tenantId   Int
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  incidentId Int
+  incident   Incident @relation(fields: [incidentId], references: [id])
+
+  actorId    Int
+  actor      User     @relation(fields: [actorId], references: [id])
+
+  @@index([tenantId])
+  @@index([incidentId])
+}
+
+model Alert {
+  id          Int      @id @default(autoincrement())
+  type        String
+  message     String
+  triggeredAt DateTime @default(now())
+  resolvedAt  DateTime?
+
+  tenantId    Int
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  incidentId  Int
+  incident    Incident @relation(fields: [incidentId], references: [id])
+
+  @@index([tenantId])
+  @@index([incidentId])
+}
