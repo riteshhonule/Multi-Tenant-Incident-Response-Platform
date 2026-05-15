@@ -4,9 +4,7 @@ import api from '../../api/axios';
 import type { User, Role } from '../../types';
 import { 
   Shield, 
-  UserCog, 
   Mail, 
-  Calendar,
   MoreVertical,
   Check
 } from 'lucide-react';
